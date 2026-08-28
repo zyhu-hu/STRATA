@@ -13,25 +13,25 @@ requires-python = ">=3.11"
 license = {text = "Apache 2.0"}
 dependencies = [
     "torch>=2.10.0",
-    "numpy",
-    "pandas",
-    "matplotlib",
-    "xarray",
+    "numpy>=2.1",
+    "pandas>=2.3",
+    "matplotlib>=3.10",
+    "xarray>=2026.7",
     "zarr>=3",
     "earth2grid>=2025.11.1",
-    "earth2studio",
-    "einops",
-    "scipy",
-    "cftime",
-    "cartopy",
+    "earth2studio>=0.13",
+    "einops>=0.8",
+    "scipy>=1.16",
+    "cftime>=1.6.5",
+    "cartopy>=0.25",
     "fme==2026.1.1",
-    "python-dotenv",
-    "pyyaml",
-    "nvtx",
-    "natten",
-    "transformer-engine[pytorch]",
-    "typer",
-    "tqdm",
+    "python-dotenv>=1.2",
+    "pyyaml>=6.0",
+    "nvtx>=0.2.14",
+    "natten>=0.21.5",
+    "transformer-engine[pytorch]>=2.11",
+    "typer>=0.26",
+    "tqdm>=4.67",
     "torchmetrics>=1.9.0",
     "lightning>=2.6.1",
     "pytorch-optimizer>=3.10.0",
@@ -40,9 +40,9 @@ dependencies = [
     # >=2.2.0a0: the Strata models ship in 2.2 (PyPI 2.1.x would import-fail);
     # the pinned archive below provides 2.2.0a0.
     "nvidia-physicsnemo>=2.2.0a0",
-    "h5netcdf",
-    "netCDF4",
-    "h5py",
+    "h5netcdf>=1.8",
+    "netCDF4>=1.7.4",
+    "h5py>=3.16",
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -53,29 +53,29 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 analysis = [
-    "altair",
-    "fsspec",
-    "joblib",
-    "plotly",
-    "seaborn",
-    "wandb",
+    "altair>=5.0",
+    "fsspec>=2026.6",
+    "joblib>=1.5",
+    "plotly>=6.9",
+    "seaborn>=0.13",
+    "wandb>=0.28",
 ]
 s3 = [
-    "multi-storage-client[boto3]",
-    "s3fs",
+    "multi-storage-client[boto3]>=0.14.1",
+    "s3fs>=2025.10",
 ]
 cu12 = [
-    "nvidia-dali-cuda120",
+    "nvidia-dali-cuda120>=1.47",
 ]
 cu13 = [
-    "nvidia-dali-cuda130",
+    "nvidia-dali-cuda130>=1.53",
 ]
 dev = [
-    "pytest-regtest",
-    "pytest",
+    "pytest-regtest>=2.1",
+    "pytest>=8.1",
 ]
 notebooks = [
-    "marimo",
+    "marimo>=0.23",
 ]
 
 [tool.setuptools.dynamic]

@@ -8,18 +8,18 @@
 #                 --no-deps so its torch>=2.10.0 floor cannot replace a
 #                 container's pre-release torch build)
 lightning==2.4.0
-multi-storage-client[boto3]
-torchmetrics
+multi-storage-client[boto3]>=0.14.1
+torchmetrics>=1.9.0
 # to avoid errors
 boto3==1.35.23
-python-dotenv
-s3fs
-xarray
-cartopy
-lmdb
-pytorch-optimizer
-netCDF4
-numba
-typer
-wandb
+python-dotenv>=1.2.2
+s3fs>=2025.10.0
+xarray>=2026.7.0
+cartopy>=0.25.0
+lmdb>=2.3.0
+pytorch-optimizer>=3.10.1
+netCDF4>=1.7.4
+numba>=0.63.1
+typer>=0.26.8
+wandb>=0.28.0
 zarr>=3
