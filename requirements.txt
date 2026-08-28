@@ -19,7 +19,6 @@ cartopy>=0.25.0
 lmdb>=2.3.0
 pytorch-optimizer>=3.10.1
 netCDF4>=1.7.4
-numba>=0.63.1
 typer>=0.26.8
 wandb>=0.28.0
 zarr>=3
