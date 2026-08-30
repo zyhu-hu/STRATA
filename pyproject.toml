@@ -44,6 +44,9 @@ dependencies = [
     "h5netcdf>=1.8",
     "netCDF4>=1.7",
     "h5py>=3.16",
+    # fme imports pkg_resources, which setuptools 81 removed (same pin the
+    # docker image carries)
+    "setuptools<81",
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
