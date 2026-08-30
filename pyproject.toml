@@ -18,7 +18,9 @@ dependencies = [
     "matplotlib>=3.10",
     "xarray>=2026.7",
     "zarr>=3",
-    "earth2grid>=2025.7.1",
+    # not on PyPI: direct reference to the commit the release was verified
+    # against (same archive docker/Dockerfile installs)
+    "earth2grid @ https://github.com/NVlabs/earth2grid/archive/3415382a37e414a867d4c6ae2519e3e8afdbece1.tar.gz",
     "earth2studio>=0.13",
     "einops>=0.8",
     "scipy>=1.16",
