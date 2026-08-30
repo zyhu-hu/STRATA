@@ -25,7 +25,7 @@ def _mk_consolidated_zarr(tmp_path, *, nt: int, nlev: int, ncol: int):
     path = tmp_path / "main.zarr"
     g = zarr.open_group(str(path), mode="w")
     # Minimal variable required by ScreamV2.__init__
-    g.create_dataset(
+    g.create_array(
         "U",
         shape=(nt, nlev, ncol),
         chunks=(1, nlev, min(ncol, 64)),
