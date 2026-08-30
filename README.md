@@ -40,21 +40,6 @@ build (set `CUDA_ARCH` in [`docker/build_natten.sh`](docker/build_natten.sh)
 for non-Hopper GPUs) and PhysicsNeMo pinned to a commit that includes the
 Strata models.
 
-### Manual install
-
-Inside an NGC PyTorch `26.01` container (torch and DALI ship with it):
-
-    make install
-
-Besides `requirements.txt`, this installs three packages that need special
-handling — NATTEN from the per-torch wheel index at `https://whl.natten.org`
-(the wheel must match the installed torch; NGC images need the source build
-in `docker/build_natten.sh` instead), earth2grid from a pinned GitHub archive
-(it is not on PyPI), and PhysicsNeMo from a pinned GitHub archive with
-`--no-deps` (its `torch>=2.10.0` floor would otherwise replace a container's
-pre-release torch build). See the comments in
-[`docker/Dockerfile`](docker/Dockerfile) for the rationale behind each step.
-
 ### pip install (plain PyPI environment)
 
 Outside NGC containers the package also installs as a normal Python project.
