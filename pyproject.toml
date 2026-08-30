@@ -31,7 +31,6 @@ dependencies = [
     "pyyaml>=6.0",
     "nvtx>=0.2.14",
     "natten>=0.21.5",
-    "transformer-engine[pytorch]>=2.11",
     "typer>=0.26",
     "tqdm>=4.67",
     "torchmetrics>=1.9.0",
