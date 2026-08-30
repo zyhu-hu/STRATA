@@ -42,12 +42,12 @@ Two subtleties make the guard reliable:
 
 Usage
 -----
-Requires a GPU (the DiT stack uses transformer_engine + natten). The golden
+Requires a GPU (the DiT stack uses natten CUDA kernels). The golden
 tensors are **local/transient and git-ignored** — they are binaries, which this
 repo must not check in (see ``AGENTS.md``). Regenerate them at the start of a
 cleanup session, **before** the first deletion::
 
-    source ~/Documents/python_envs/screamcast_env/bin/activate
+    # in your training environment (the docker image or an equivalent venv)
     SCREAMCAST_REGEN_GOLDEN=1 pytest tests/test_characterization_inference.py -q
 
 Then, after each cleanup step, re-run *without* the env var; any change to
@@ -88,7 +88,7 @@ TILE, DEPTH, NSIDE, CH = 64, 12, 512, 6
 
 requires_cuda = pytest.mark.skipif(
     not torch.cuda.is_available(),
-    reason="DiT stack requires CUDA (transformer_engine + natten)",
+    reason="DiT stack requires CUDA (natten kernels)",
 )
 
 

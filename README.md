@@ -23,8 +23,8 @@ scripts, and environment variables keep the project's original name: you import
 ## Setup
 
 The models need a recent NVIDIA GPU software stack that cannot come from PyPI
-alone: a CUDA-tuned PyTorch build, NVIDIA DALI (data pipelines), Transformer
-Engine, and a NATTEN build that matches the installed torch. The supported
+alone: a CUDA-tuned PyTorch build, NVIDIA DALI (data pipelines), and a NATTEN
+build that matches the installed torch. The supported
 base environment is the [NGC PyTorch container](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/pytorch)
 `nvcr.io/nvidia/pytorch:26.01-py3` (anonymous pulls generally work; a free
 NGC account may be required depending on NGC policy).
@@ -40,21 +40,21 @@ build (set `CUDA_ARCH` in [`docker/build_natten.sh`](docker/build_natten.sh)
 for non-Hopper GPUs) and PhysicsNeMo pinned to a commit that includes the
 Strata models.
 
-### Manual install
+### pip install (plain PyPI environment)
 
-Inside an NGC PyTorch `26.01` container (torch, DALI, and Transformer Engine
-ship with it):
+Outside NGC containers the package also installs as a normal Python project.
+The one extra flag is NATTEN's wheel index, which lets pip pick the CUDA
+wheel matching your torch build (without it, pip falls back to the PyPI
+sdist and a long from-source compile):
 
-    make install
+    pip install -e . -f https://whl.natten.org
 
-Besides `requirements.txt`, this installs three packages that need special
-handling — NATTEN from the per-torch wheel index at `https://whl.natten.org`
-(the wheel must match the installed torch; NGC images need the source build
-in `docker/build_natten.sh` instead), earth2grid from a pinned GitHub archive
-(it is not on PyPI), and PhysicsNeMo from a pinned GitHub archive with
-`--no-deps` (its `torch>=2.10.0` floor would otherwise replace a container's
-pre-release torch build). See the comments in
-[`docker/Dockerfile`](docker/Dockerfile) for the rationale behind each step.
+Optional extras: `.[s3]` (S3 data access), `.[analysis]` (plotting),
+`.[cu12]`/`.[cu13]` (DALI for your CUDA major version), `.[dev]` (tests),
+`.[notebooks]` (marimo). earth2grid installs automatically from its pinned
+GitHub archive (it has no PyPI release). Note this path resolves the newest
+compatible versions from PyPI rather than reproducing the container
+environment above — use the Docker image for the verified stack.
 
 ### Data, checkpoints, and auxiliary files
 

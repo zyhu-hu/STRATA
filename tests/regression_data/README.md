@@ -10,7 +10,7 @@ The `*.pt` files are binaries and are **not** committed (see the no-binary rule 
 Regenerate on a GPU node **before** the first deletion:
 
 ```bash
-source ~/Documents/python_envs/screamcast_env/bin/activate
+# in your training environment (the docker image or an equivalent venv)
 SCREAMCAST_REGEN_GOLDEN=1 pytest tests/test_characterization_inference.py -q
 ```
 
