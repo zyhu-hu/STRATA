@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+- Add `DiTConfig.wind_center_mode` (`"mean"` default, `"spherical_centroid"`)
+  and `ScreamcastModel.from_checkpoint(..., dit_overrides=...)`. The hourly
+  ne128 checkpoints train on whole cube faces with the spherical-centroid
+  wind-rotation frame. Their embedded configs record the field, but older
+  code dropped it on load and ran them with the mean center, which is wrong
+  on the polar faces; they now load correctly without an override. Configs
+  with `do_rotate_wind` but no `wind_center_mode` now warn.
 - Fix the slow pixel-stage depthwise conv (#6): pin physicsnemo main @
   `fae6bb2b`, which contains NVIDIA/physicsnemo#2140. Its Strata
   `DepthwiseConv` defaults to `chunk_size="auto"` instead of fixed

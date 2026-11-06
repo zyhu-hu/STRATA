@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import dataclasses
 import os
+import warnings
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -107,6 +108,13 @@ class DiTConfig:
     do_rope_2d: bool = False
     do_rope_2d_stereographic: bool = False
     do_rotate_wind: bool = False
+    # Center of the tile-local wind-rotation frame. "mean" = arithmetic mean
+    # latitude + circular mean longitude (the historical center; the shipped
+    # pixeldit checkpoints were trained with it). "spherical_centroid" = the
+    # unit-vector mean, which stays correct on polar and seam-crossing tiles;
+    # the hourly ne128 (ERA5-native / LoRA-on-SCREAM) checkpoints, which
+    # train on whole cube faces, need it.
+    wind_center_mode: str = "mean"
     index_is_latlon: bool = False
 
     # Dealiased patch embedding (shift-invariant PatchEmbed3D)
@@ -131,10 +139,28 @@ class DiTConfig:
             raise ValueError(
                 f"do_activation_checkpointing must be in [0, 1], got {self.do_activation_checkpointing}"
             )
+        if self.wind_center_mode not in ("mean", "spherical_centroid"):
+            raise ValueError(
+                "wind_center_mode must be 'mean' or 'spherical_centroid', "
+                f"got {self.wind_center_mode!r}"
+            )
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "DiTConfig":
-        return _from_dict(cls, d)
+        cfg = _from_dict(cls, d)
+        if cfg.do_rotate_wind and "wind_center_mode" not in d:
+            # Config snapshots written before the field existed cannot say
+            # which center they were trained with; "mean" is right for the
+            # pixeldit checkpoints but wrong for the ne128 whole-face ones.
+            warnings.warn(
+                "DiTConfig.from_dict: 'wind_center_mode' is missing from a "
+                "do_rotate_wind config; using 'mean'. Checkpoints trained on "
+                "whole cube faces (the hourly ne128 models) need "
+                "wind_center_mode='spherical_centroid' "
+                "(ScreamcastModel.from_checkpoint(..., dit_overrides=...)).",
+                stacklevel=2,
+            )
+        return cfg
 
 
 @dataclass

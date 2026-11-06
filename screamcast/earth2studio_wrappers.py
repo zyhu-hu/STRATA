@@ -745,6 +745,7 @@ class ScreamcastModel(torch.nn.Module):
         scream_data: screamcast.catalog_core.ScreamData | None = None,
         bf16: bool = False,
         disable_activation_checkpointing: bool = True,
+        dit_overrides: dict | None = None,
     ) -> "ScreamcastModel":
         """Construct a :class:`ScreamcastModel` from a saved checkpoint.
 
@@ -759,6 +760,11 @@ class ScreamcastModel(torch.nn.Module):
             If True, disable runtime activation checkpointing on supported DiT
             backbones after loading the checkpoint. This is enabled by default
             for inference-oriented wrapper usage.
+        dit_overrides:
+            ``DiTConfig`` fields to set on the checkpoint's embedded config
+            before the network is built, for fields the embedded config
+            predates (e.g. ``{"wind_center_mode": "spherical_centroid"}`` for
+            the hourly ne128 checkpoints).
 
         Returns
         -------
@@ -779,6 +785,11 @@ class ScreamcastModel(torch.nn.Module):
             train_cfg,
             data=dataclasses.replace(train_cfg.data, latlon_path=latlon_path),
         )
+
+        if dit_overrides:
+            train_cfg = dataclasses.replace(
+                train_cfg, dit=dataclasses.replace(train_cfg.dit, **dit_overrides)
+            )
 
         data_cfg = train_cfg.data
 

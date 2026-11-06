@@ -135,6 +135,7 @@ def _dit_common_kwargs(
         do_activation_checkpointing=dit_cfg.do_activation_checkpointing,
         do_rope_2d_stereographic=dit_cfg.do_rope_2d_stereographic,
         do_rotate_wind=dit_cfg.do_rotate_wind,
+        wind_center_mode=dit_cfg.wind_center_mode,
         wind_channel_indices=wind_channel_indices,
         gated_attention=dit_cfg.gated_attention,
         grid_type=grid_type,

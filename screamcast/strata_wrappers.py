@@ -39,7 +39,9 @@ Numerics note: the stereographic RoPE coordinates come from physicsnemo
 (`spherical_centroid` tile centers / patch pooling) rather than the
 pre-migration mean-latitude + circular-mean-longitude math — a small,
 accepted numerical difference for ``do_rope_2d_stereographic`` models. The
-wind rotation keeps the mean-based center, so its numerics are unchanged.
+wind rotation keeps the mean-based center by default, so its numerics are
+unchanged; ``DiTConfig.wind_center_mode='spherical_centroid'`` selects the
+unit-vector center the whole-face ne128 checkpoints were trained with.
 Everything else is bit-compatible modulo op ordering.
 """
 
@@ -49,7 +51,10 @@ import torch
 import torch.nn as nn
 from physicsnemo.experimental.models.strata import Strata, StrataTransformer3D
 from physicsnemo.experimental.models.strata.coords import build_axial_token_coords
-from physicsnemo.experimental.nn import build_axial_rope_cos_sin_2d_continuous
+from physicsnemo.experimental.nn import (
+    build_axial_rope_cos_sin_2d_continuous,
+    spherical_centroid,
+)
 from physicsnemo.nn.module.mlp_layers import Mlp
 
 from screamcast.checkpoint_compat import remap_legacy_state_dict
@@ -162,6 +167,20 @@ def _rope_mode(do_rope_2d: bool, do_rope_2d_stereographic: bool) -> str:
     return "none"
 
 
+def _spherical_centroid_center(
+    lat: torch.Tensor, lon: torch.Tensor
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Unit-vector-mean tile center ``(lat0, lon0)``, each ``[B, 1, 1]``."""
+    return spherical_centroid(lat, lon, reduce_dims=(1, 2))
+
+
+# DiTConfig.wind_center_mode -> center of the tile-local wind-rotation frame.
+_TILE_CENTER_FNS = {
+    "mean": TileGeometry.tile_center,
+    "spherical_centroid": _spherical_centroid_center,
+}
+
+
 class _StrataModelBase(nn.Module):
     """Shared geometry/wind/lat-concat plumbing for both wrappers."""
 
@@ -175,15 +194,22 @@ class _StrataModelBase(nn.Module):
         nside: int,
         cubesphere_latlon_path: str,
         index_is_latlon: bool,
+        wind_center_mode: str = "mean",
     ):
         super().__init__()
         if do_rotate_wind and wind_channel_indices is None:
             raise ValueError(
                 "Must specify wind_channel_indices when do_rotate_wind is True"
             )
+        if wind_center_mode not in _TILE_CENTER_FNS:
+            raise ValueError(
+                f"wind_center_mode must be one of {sorted(_TILE_CENTER_FNS)}, "
+                f"got {wind_center_mode!r}"
+            )
         self._do_concat_latitude = do_concat_latitude
         self._do_rotate_wind = do_rotate_wind
         self._wind_channel_indices = wind_channel_indices
+        self._tile_center_fn = _TILE_CENTER_FNS[wind_center_mode]
         self.geometry = TileGeometry(
             grid_type=grid_type,
             nside=nside,
@@ -222,7 +248,7 @@ class _StrataModelBase(nn.Module):
 
         lat_lon_data = None
         if self._do_rotate_wind:
-            lat0, lon0 = TileGeometry.tile_center(lat, lon)
+            lat0, lon0 = self._tile_center_fn(lat, lon)
             lat_lon_data = (lat, lon, lat0, lon0)
             u_idx, v_idx = self._wind_channel_indices
             u_rot, v_rot = forward_uv_to_tile(
@@ -296,6 +322,7 @@ class StrataBackboneModel(_StrataModelBase):
         index_is_latlon: bool = False,
         use_dealiased_patch_embed: bool = False,
         dealias_resample_filter: tuple = (1, 4, 6, 4, 1),
+        wind_center_mode: str = "mean",
     ):
         super().__init__(
             do_concat_latitude=do_concat_latitude,
@@ -305,6 +332,7 @@ class StrataBackboneModel(_StrataModelBase):
             nside=nside,
             cubesphere_latlon_path=cubesphere_latlon_path,
             index_is_latlon=index_is_latlon,
+            wind_center_mode=wind_center_mode,
         )
         pv = patch_size_vert if patch_size_vert is not None else patch_size
         ph = patch_size_horiz if patch_size_horiz is not None else patch_size
@@ -461,6 +489,7 @@ class StrataModel(_StrataModelBase):
                 "cubesphere_latlon_path", "data/latlon_ne1024pg2.nc"
             ),
             index_is_latlon=semantic_kwargs.get("index_is_latlon", False),
+            wind_center_mode=semantic_kwargs.get("wind_center_mode", "mean"),
         )
 
         self._rope_length_scale_base = _resolve_rope_base(
@@ -546,6 +575,7 @@ class StrataModel(_StrataModelBase):
             "index_is_latlon",
             "use_dealiased_patch_embed",
             "dealias_resample_filter",
+            "wind_center_mode",
         ):
             sk.pop(consumed, None)
 
