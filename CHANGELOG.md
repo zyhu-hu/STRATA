@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+- Add `scripts/ace/run_screamcast_ne128.py`: hourly rollout of the ne128pg2
+  checkpoints (e.g. the large-scale emulator) from hourly ne128 zarr stores,
+  one 320-px halo-padded tile per face, coszr computed per step, output in
+  the face-layout zarr of `run_screamcast_nudged.py` with a `history`
+  attribute. It runs one tile per forward pass by default,
+  as in training: the polar-face tile frame depends on the batch size.
 - Add `DiTConfig.wind_center_mode` (`"mean"` default, `"spherical_centroid"`)
   and `ScreamcastModel.from_checkpoint(..., dit_overrides=...)`. The hourly
   ne128 checkpoints train on whole cube faces with the spherical-centroid
