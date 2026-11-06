@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+- Add `scripts/ace/build_scream_ne128_ic.py`: hourly ne128pg2 initial-condition
+  stores from SCREAM ne1024pg2 output (EAMxx netCDF or the cubesphere zarr),
+  coarsened as the fine-tuning data was (8x8 block mean per face, physical
+  levels 35:128:4). `docs/ne128_scream_rollout.md` walks through building an
+  initial condition and rolling out.
 - Add `scripts/ace/run_screamcast_ne128.py`: hourly rollout of the ne128pg2
   checkpoints (e.g. the large-scale emulator) from hourly ne128 zarr stores,
   one 320-px halo-padded tile per face, coszr computed per step, output in

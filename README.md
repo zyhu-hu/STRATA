@@ -223,6 +223,14 @@ CLI (checkpoint, number of steps, tile/halo size, omega filtering, output
 levels, initial time, ...). `--output-levels` selects which vertical levels are
 written to the output zarr.
 
+## Hourly ne128 rollouts from SCREAM
+
+The hourly ne128pg2 checkpoints (the large-scale emulator) roll out with
+`scripts/ace/run_screamcast_ne128.py` from initial conditions that
+`scripts/ace/build_scream_ne128_ic.py` coarsens from SCREAM ne1024pg2 output.
+See [`docs/ne128_scream_rollout.md`](docs/ne128_scream_rollout.md) for the
+files you need and the two commands.
+
 ## Local evaluation
 
 For a quick rollout on a single tile, open
