@@ -154,6 +154,10 @@ class PixelDiTConfig:
     use_bilinear_dw_gelu_project_adaln: bool = False
     use_chunked_depthwise_conv: bool = True
     first_block_only_adaln: bool = False
+    # NA3D backend for the pixel blocks only ("" → natten default); the semantic
+    # stage uses DiTConfig.na3d_backend. Checkpoints trained with an explicit
+    # pixel backend (e.g. "cutlass-fna" for 160-px tiles) store it here.
+    na3d_backend: str = ""
     do_rope_2d: bool = False
     do_rope_2d_stereographic: bool = False
 

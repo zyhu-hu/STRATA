@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+- Honor `PixelDiTConfig.na3d_backend`: the pixel stage's NATTEN backend is
+  now a config field passed to the model (`na3d_backend_pixel`). Before, a
+  checkpoint trained with an explicit pixel backend (e.g. `cutlass-fna` on
+  160-px tiles) lost it on load and ran the default kernel, so bf16
+  inference no longer matched training numerics.
 - Fix the slow pixel-stage depthwise conv (#6): pin physicsnemo main @
   `fae6bb2b`, which contains NVIDIA/physicsnemo#2140. Its Strata
   `DepthwiseConv` defaults to `chunk_size="auto"` instead of fixed

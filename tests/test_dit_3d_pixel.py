@@ -312,6 +312,50 @@ def test_factory_default_depthwise_conv_uses_auto_chunking():
         assert conv.chunk_size == "auto"
 
 
+def test_factory_pixel_na3d_backend_reaches_pixel_blocks():
+    """``PixelDiTConfig.na3d_backend`` survives a checkpoint's config dict and
+    reaches every pixel-stage attention, independently of the backbone's.
+
+    Checkpoints trained on 160-px tiles store ``pixel_dit.na3d_backend =
+    "cutlass-fna"``; if the field is dropped, the pixel stage silently runs the
+    natten default kernel, whose bf16 output differs from training.
+    """
+    from physicsnemo.experimental.models.strata.layers import Natten3DSelfAttention
+
+    import train as train_module
+    from screamcast.config import DiTConfig, PixelDiTConfig
+
+    pixel_cfg = PixelDiTConfig.from_dict(
+        {"use_bilinear_dw_gelu_project_adaln": True, "na3d_backend": "cutlass-fna"}
+    )
+    assert pixel_cfg.na3d_backend == "cutlass-fna"
+    with torch.device("meta"):
+        model = train_module.build_strata(
+            6,
+            6,
+            1024,
+            32,
+            dit_cfg=DiTConfig(embed_dim=64, n_layers=1, num_heads=2),
+            pixel_cfg=pixel_cfg,
+            do_bf16_mixed=False,
+            depth_levels=4,
+            grid_type="healpix",
+        )
+    pixel_attn = [
+        m
+        for m in model.strata.pixel_blocks.modules()
+        if isinstance(m, Natten3DSelfAttention)
+    ]
+    backbone_attn = [
+        m
+        for m in model.strata.backbone.modules()
+        if isinstance(m, Natten3DSelfAttention)
+    ]
+    assert pixel_attn and backbone_attn
+    assert all(m.na3d_backend == "cutlass-fna" for m in pixel_attn)
+    assert all(m.na3d_backend is None for m in backbone_attn)
+
+
 def test_dit_pixel_freeze_pixel_blocks():
     D, H, W = 24, 64, 64
     model = StrataModel(

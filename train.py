@@ -216,6 +216,7 @@ def build_strata(
         first_block_only_adaln_pixel=pixel_cfg.first_block_only_adaln,
         do_rope_2d_pixel=pixel_cfg.do_rope_2d,
         do_rope_2d_stereographic_pixel=pixel_cfg.do_rope_2d_stereographic,
+        na3d_backend_pixel=pixel_cfg.na3d_backend or None,
     )
 
 
